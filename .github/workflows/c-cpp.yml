@@ -16,11 +16,22 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
 
+      - name: Install nwlink
+        run: |
+          npm install -g nwlink
+
       - name: Compile Application
         run: |
-          # On force la liste des fichiers sources pour être sûr que rien n'est oublié
-          export SRCS="$(find src -name "*.cpp" -o -name "*.c")"
-          make build SRCS="$SRCS"
+          # On nettoie d'abord pour repartir à zéro
+          make clean
+          
+          # On récupère tous les fichiers .cpp et .c
+          # On les passe directement en argument de la commande 'make'
+          # pour écraser la variable SRCS du Makefile
+          SOURCES=$(find src -name "*.cpp" -o -name "*.c" | tr '\n' ' ')
+          echo "Fichiers trouvés : $SOURCES"
+          
+          make build SRCS="$SOURCES"
 
       - name: Save NWA file
         uses: actions/upload-artifact@v4
