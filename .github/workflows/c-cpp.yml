@@ -10,8 +10,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Install ARM Toolchain
         run: |
@@ -22,18 +20,20 @@ jobs:
         run: |
           npm install -g nwlink
 
+      - name: Preparation - Move all files to src
+        run: |
+          # On déplace tout le code de 'originalSource' vers 'src'
+          # car le Makefile semble programmé pour ne regarder que là.
+          cp originalSource/* src/ 2>/dev/null || true
+          echo "Contenu de src après déplacement :"
+          ls src
+
       - name: Compile Application
         run: |
           make clean
-          
-          # On cherche les fichiers dans 'src' ET dans 'originalSource'
-          # On s'assure de bien tous les lister sur une seule ligne
-          SOURCES=$(find src originalSource -name "*.cpp" -o -name "*.c" | tr '\n' ' ')
-          
-          echo "Fichiers à compiler : $SOURCES"
-          
-          # On lance le build en forçant SRCS et en ajoutant les chemins d'inclusion pour les .h
-          make build SRCS="$SOURCES" USER_FLAGS="-Isrc -IoriginalSource"
+          # On laisse le Makefile faire son travail normalement 
+          # maintenant que tous les fichiers sont dans le bon dossier
+          make build
 
       - name: Save NWA file
         uses: actions/upload-artifact@v4
