@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install ARM Toolchain
         run: |
@@ -22,16 +24,16 @@ jobs:
 
       - name: Compile Application
         run: |
-          # On nettoie d'abord pour repartir à zéro
           make clean
           
-          # On récupère tous les fichiers .cpp et .c
-          # On les passe directement en argument de la commande 'make'
-          # pour écraser la variable SRCS du Makefile
-          SOURCES=$(find src -name "*.cpp" -o -name "*.c" | tr '\n' ' ')
-          echo "Fichiers trouvés : $SOURCES"
+          # On cherche les fichiers dans 'src' ET dans 'originalSource'
+          # On s'assure de bien tous les lister sur une seule ligne
+          SOURCES=$(find src originalSource -name "*.cpp" -o -name "*.c" | tr '\n' ' ')
           
-          make build SRCS="$SOURCES"
+          echo "Fichiers à compiler : $SOURCES"
+          
+          # On lance le build en forçant SRCS et en ajoutant les chemins d'inclusion pour les .h
+          make build SRCS="$SOURCES" USER_FLAGS="-Isrc -IoriginalSource"
 
       - name: Save NWA file
         uses: actions/upload-artifact@v4
