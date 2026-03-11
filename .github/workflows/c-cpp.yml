@@ -17,7 +17,10 @@ jobs:
           sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
 
       - name: Compile Application
-        run: make build
+        run: |
+          # On force la liste des fichiers sources pour être sûr que rien n'est oublié
+          export SRCS="$(find src -name "*.cpp" -o -name "*.c")"
+          make build SRCS="$SRCS"
 
       - name: Save NWA file
         uses: actions/upload-artifact@v4
