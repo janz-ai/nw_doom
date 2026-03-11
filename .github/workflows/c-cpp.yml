@@ -23,4 +23,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nw-doom-app
-          path: "*.nwa"
+          path: "**/*.nwa"
